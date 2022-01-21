@@ -1,4 +1,4 @@
-# SMARTDO
+# SMART-TODO
 
 ### A simple Todo list app built on ERC20 Token Smart Contract on Rinkeby testnet written in Golang.
 
