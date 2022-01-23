@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"crypto/ecdsa"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -33,7 +34,7 @@ var (
 	TestPassword2    = "password"
 	TestUserName2    = "efemena"
 
-	ActiveNet =  KovanTestNet
+	ActiveNet = KovanTestNet
 )
 
 func FailOnError(err error, note string) bool {
@@ -79,14 +80,81 @@ func main() {
 	_ = FailOnError(err, "Error creating ether client")
 	defer eClient.Close()
 
-	wallet, err := ReadCryptoKey(TestPassword1, TestUserName1)
+	senderKeys, err := ReadCryptoKey(TestPassword1, TestUserName1)
 	_ = FailOnError(err, "ReadCryptoWallet")
-	// walletHex := wallet.PrivateKey.PublicKey.
 
-	cryptoAddress := GetWalletAddress(wallet)
-	_ = CheckCryptoBalance(*cryptoAddress, eClient)
+	senderWallet, err := GetUserAddress(TestPassword1, TestUserName1)
+	_ = FailOnError(err, "GetUserAddress")
+
+	receiverWallet, err := GetUserAddress(TestPassword1, TestUserName1)
+	_ = FailOnError(err, "GetUserAddress")
+
+	//send ether
+	amount := big.NewInt(100000) //wei
+	var AppData []byte = nil
+	transaction, err := CreateNewTransaction(*senderWallet, *receiverWallet, amount, eClient, AppData)
+	_ = FailOnError(err, "CreateNewTransaction")
+
+	chainID, err := eClient.NetworkID(context.Background())
+	//sign transaction with private key
+	signedTranx, err := types.SignTx(transaction, types.NewEIP155Signer(chainID), senderKeys.PrivateKey)
+	_ = FailOnError(err, "SignTx")
+
+	sendTx, err := SendTransaction(eClient, signedTranx)
+	_ = FailOnError(err, "CreateNewTransaction")
+
+	fmt.Printf("Transaction hash : %v\n\n", sendTx)
+
 }
 
+//SendTransaction - sends transaction to blockchain
+func SendTransaction(eClient *ethclient.Client, tranx *types.Transaction) (*string, error) {
+	err := eClient.SendTransaction(context.Background(), tranx)
+	if FailOnError(err, "SendTransaction") == true {
+		return nil, err
+	}
+
+	TxHash := tranx.Hash().Hex()
+	return &TxHash, nil
+}
+
+func GetUserAddress(username, password string) (*common.Address, error) {
+
+	wallet, err := ReadCryptoKey(password, username)
+	if FailOnError(err, "ReadCryptoWallet") == true {
+		return nil, err
+	}
+
+	cryptoAddress := GetWalletAddress(wallet)
+	return cryptoAddress, nil
+}
+
+//CreateNewTransaction - Creates a new transaction compatible on the network given in client connection
+func CreateNewTransaction(fromAddress, toAddress common.Address, amount *big.Int, client *ethclient.Client, AppData []byte) (*types.Transaction, error) {
+	var gassLimit uint64 = 21000
+
+	gasPrice, err := client.SuggestGasPrice(context.Background())
+	if FailOnError(err, "client.SuggestGasPrice") == true {
+		return nil, err
+	}
+
+	nonce, err := client.PendingNonceAt(context.Background(), fromAddress)
+	if FailOnError(err, "client.PendingNonceAt") == true {
+		return nil, err
+	}
+	//check if sender balance is enough to make payment
+	senderBalance := CheckCryptoBalance(fromAddress, client)
+
+	total := gasPrice.Add(amount, gasPrice)
+	if total.CmpAbs(senderBalance) <= 0 {
+		return nil, errors.New("Insufficient funds to initiate transaction")
+	}
+
+	trx := types.NewTransaction(nonce, toAddress, amount, gassLimit, gasPrice, AppData)
+	return trx, nil
+}
+
+//CheckCryptoBalance - returns the balance of the given address on the ethereum(mainor testnet) network
 func CheckCryptoBalance(walletAddress common.Address, eClient *ethclient.Client) *big.Int {
 
 	balance, err := eClient.BalanceAt(context.Background(), walletAddress, nil)
@@ -108,6 +176,7 @@ func CreateCryptoWallet(password, username string) *accounts.Account {
 	return &account
 }
 
+//ReadCryptoKey - Decrypts and returns private key with user's password
 func ReadCryptoKey(password, username string) (*keystore.Key, error) {
 
 	walletLocation := KeyStoreLocation + "/" + username
@@ -126,6 +195,7 @@ func ReadCryptoKey(password, username string) (*keystore.Key, error) {
 	return key, nil
 }
 
+//GetWalletAddress - Returns wallet address
 func GetWalletAddress(privKey *keystore.Key) *common.Address {
 	walletHex := crypto.PubkeyToAddress(privKey.PrivateKey.PublicKey).Hex()
 	cryptoAddress := common.HexToAddress(walletHex)
@@ -150,6 +220,7 @@ func getWalletBalance(ec *ethclient.Client, addr string) (*big.Int, error) {
 	return balance, nil
 }
 
+//weiToEther - converts given wei to ether
 func weiToEther(weiValue *big.Int) *big.Float {
 	//11 eth = 10^18 wei
 	var fB = new(big.Float)
