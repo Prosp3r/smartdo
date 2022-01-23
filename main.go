@@ -18,13 +18,22 @@ import (
 )
 
 var (
-	EvMOSNet         = "http://192.168.8.105:8545"
-	MainNet          = "https://mainnet.infura.io/v3/4b0fe94094e047ffa6292fc8065e42b8"
-	GanaChe          = ""
-	RinkByTestNet    = "https://rinkeby.infura.io/v3/9aa3d95b3bc440fa88ea12eaa4456161"
+	EvMOSNet = "http://192.168.8.105:8545"
+	// MainNet  = "https://mainnet.infura.io/v3/4b0fe94094e047ffa6292fc8065e42b8"
+	MainNet = "https://mainnet.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+	GanaChe = ""
+
+	RinkByTestNet  = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+	KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+	RopstenTestNet = "https://ropsten.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+
 	KeyStoreLocation = "./wallet"
-	TestPassword     = "password"
-	TestUserName     = "user_name"
+	TestPassword1    = "password"
+	TestUserName1    = "prosper"
+	TestPassword2    = "password"
+	TestUserName2    = "efemena"
+
+	ActiveNet =  KovanTestNet
 )
 
 func FailOnError(err error, note string) bool {
@@ -50,48 +59,43 @@ func loadSampleData() bool {
 	SD.tranxHash = "0xf943f16dc36ad99ecce29c3eb351a7ff744bf86093dace022ed5fbffbb651af9"
 
 	return true
+
+	//address1//0xd54dBb460e43463D9382E38d06aAf258a27D050a
+	//address2//0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d
 }
 
 //END SampleData - temporary information for testing
+
+var address1 common.Address //"0xd54dBb460e43463D9382E38d06aAf258a27D050a"
+var address2 common.Address //"0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d"
 
 func main() {
 
 	//Load Sample data
 	_ = loadSampleData()
 
-	eClient, err := ethclient.DialContext(context.Background(), RinkByTestNet)
+	// eClient, err := ethclient.DialContext(context.Background(), ActiveNet)
+	eClient, err := ethclient.Dial(ActiveNet)
 	_ = FailOnError(err, "Error creating ether client")
 	defer eClient.Close()
 
-	// a := CreateCryptoWallet(TestPassword, TestUserName)
-	// fmt.Println(a.Address)
-	// fmt.Println(a.URL)
-
-	walletPrvKey, err := ReadCryptoWallet(TestPassword, TestUserName)
+	wallet, err := ReadCryptoKey(TestPassword1, TestUserName1)
 	_ = FailOnError(err, "ReadCryptoWallet")
-	cryptoAddress := crypto.PubkeyToAddress(walletPrvKey.PrivateKey.PublicKey).Hex()
-	fmt.Println(cryptoAddress)
+	// walletHex := wallet.PrivateKey.PublicKey.
 
-	// for {
-	// 	//1. block := getLastNetBlock(eClient)
-	// 	//2. bal, err := getWalletBalance(eClient, SD.address)
-	// 	// _ = FailOnError(err, "getWalletBalance")
-	// 	// fmt.Printf("\n\nWalletBalance : => %v \n ETH Value : %v\n", bal, weiToEther(bal))
+	cryptoAddress := GetWalletAddress(wallet)
+	_ = CheckCryptoBalance(*cryptoAddress, eClient)
+}
 
-	// 	pk, err := GenPrivateKey()
-	// 	_ = FailOnError(err, "GenPrivateKey")
-	// 	prKString, err := PrivateKeyTostring(pk)
-	// 	_ = FailOnError(err, "PrivateKeyToString")
+func CheckCryptoBalance(walletAddress common.Address, eClient *ethclient.Client) *big.Int {
 
-	// 	pubKey := GenPublicKey(pk)
-	// 	puKString := PublicKeyTostring(pubKey)
-	// 	//generate address hex
-	// 	cryptoAddress := PubKeyToAddress(pubKey)
+	balance, err := eClient.BalanceAt(context.Background(), walletAddress, nil)
+	_ = FailOnError(err, "eClient.BalanceAt")
+	fmt.Printf("Balance at choosen testnet wei (%v) \n", balance)
+	ethBalance := weiToEther(balance)
+	fmt.Printf("Balance at choosen testnet ETH (%v) \n", ethBalance)
 
-	// 	fmt.Printf("\n\nPrivateKey: %v\n PublicKey: %v\n Addres: %v\n", *prKString, *puKString, *cryptoAddress)
-
-	// 	time.Sleep(time.Second * 5)
-	// }
+	return balance
 }
 
 //CreateCryptoWallet - Creates an encrypted wallet with the given password
@@ -104,7 +108,7 @@ func CreateCryptoWallet(password, username string) *accounts.Account {
 	return &account
 }
 
-func ReadCryptoWallet(password, username string) (*keystore.Key, error) {
+func ReadCryptoKey(password, username string) (*keystore.Key, error) {
 
 	walletLocation := KeyStoreLocation + "/" + username
 	all, err := ioutil.ReadDir(walletLocation)
@@ -118,14 +122,14 @@ func ReadCryptoWallet(password, username string) (*keystore.Key, error) {
 	key, err := keystore.DecryptKey(readFile, password)
 	_ = FailOnError(err, "keystore.DecryptKey")
 
-	// privateData := crypto.FromECDSA(key.PrivateKey)
-	// privateKeyString := hexutil.Encode(privateData)
-
-	// publicData := crypto.FromECDSAPub(&key.PrivateKey.PublicKey)
-	// publicKeyString := hexutil.Encode(publicData)
-	cryptoAddress := crypto.PubkeyToAddress(key.PrivateKey.PublicKey).Hex()
-	fmt.Println(cryptoAddress)
+	// cryptoAddress := crypto.PubkeyToAddress(key.PrivateKey.PublicKey).Hex()
 	return key, nil
+}
+
+func GetWalletAddress(privKey *keystore.Key) *common.Address {
+	walletHex := crypto.PubkeyToAddress(privKey.PrivateKey.PublicKey).Hex()
+	cryptoAddress := common.HexToAddress(walletHex)
+	return &cryptoAddress
 }
 
 //getLastNetBlock - Returns the last block minned on the network
