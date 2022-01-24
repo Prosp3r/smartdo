@@ -15,6 +15,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
 	"github.com/ethereum/go-ethereum/ethclient"
+	_ "golang.org/x/tools/cmd/stringer"
 )
 
 var (
@@ -121,6 +122,10 @@ func ProcessSampleTransaction(eClient *ethclient.Client) {
 
 	// sendTxH := common.HexToAddress(*sendTx)
 	fmt.Printf("Transaction hash : %v\n\n", *sendTx)
+
+	//TODO
+	//Display more information to user eg. Howmuch receiver gets, cost, etc.
+	//
 }
 
 //SendTransaction - sends transaction to blockchain
