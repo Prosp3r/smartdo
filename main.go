@@ -82,11 +82,12 @@ func main() {
 
 	//Interact with contract of Hex: 0x4241D10e086895Ca1E08903baB2778e49aa31d37
 	TransHex := "0x4241D10e086895Ca1E08903baB2778e49aa31d37"
-	_ = interact.Interact(eClient, TestUserName1, TestPassword1, TransHex)
+	// _ = interact.InteractAdd(eClient, TestUserName1, TestPassword1, TransHex)
+	_ = interact.InteractList(eClient, TestUserName1, TestPassword1, TransHex)
 
 }
 
-func ProcessSampleTransaction(eClient *ethclient.Client) {
+func ProcessAddTransaction(eClient *ethclient.Client) {
 
 	senderKeys, err := utility.ReadCryptoKey(TestPassword1, TestUserName1)
 	_ = FailOnError(err, "ReadCryptoWallet")
