@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"crypto/ecdsa"
-	"errors"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -34,7 +33,7 @@ var (
 	TestPassword2    = "password"
 	TestUserName2    = "efemena"
 
-	ActiveNet = KovanTestNet
+	ActiveNet = RopstenTestNet //RinkByTestNet //KovanTestNet
 )
 
 func FailOnError(err error, note string) bool {
@@ -86,24 +85,34 @@ func main() {
 	senderWallet, err := GetUserAddress(TestPassword1, TestUserName1)
 	_ = FailOnError(err, "GetUserAddress")
 
-	receiverWallet, err := GetUserAddress(TestPassword1, TestUserName1)
+	receiverWallet, err := GetUserAddress(TestPassword2, TestUserName2)
 	_ = FailOnError(err, "GetUserAddress")
 
 	//send ether
-	amount := big.NewInt(100000) //wei
+	amount := big.NewInt(500000) //wei
 	var AppData []byte = nil
 	transaction, err := CreateNewTransaction(*senderWallet, *receiverWallet, amount, eClient, AppData)
-	_ = FailOnError(err, "CreateNewTransaction")
+	if FailOnError(err, "CreateNewTransaction") == true {
+		return
+	}
 
 	chainID, err := eClient.NetworkID(context.Background())
+	if FailOnError(err, "eClient.NetworkID") == true {
+		return
+	}
 	//sign transaction with private key
 	signedTranx, err := types.SignTx(transaction, types.NewEIP155Signer(chainID), senderKeys.PrivateKey)
-	_ = FailOnError(err, "SignTx")
+	if FailOnError(err, "SignTx") == true {
+		return
+	}
 
 	sendTx, err := SendTransaction(eClient, signedTranx)
-	_ = FailOnError(err, "CreateNewTransaction")
+	if FailOnError(err, "CreateNewTransaction") == true {
+		return
+	}
 
-	fmt.Printf("Transaction hash : %v\n\n", sendTx)
+	// sendTxH := common.HexToAddress(*sendTx)
+	fmt.Printf("Transaction hash : %v\n\n", *sendTx)
 
 }
 
@@ -118,7 +127,7 @@ func SendTransaction(eClient *ethclient.Client, tranx *types.Transaction) (*stri
 	return &TxHash, nil
 }
 
-func GetUserAddress(username, password string) (*common.Address, error) {
+func GetUserAddress(password, username string) (*common.Address, error) {
 
 	wallet, err := ReadCryptoKey(password, username)
 	if FailOnError(err, "ReadCryptoWallet") == true {
@@ -142,15 +151,20 @@ func CreateNewTransaction(fromAddress, toAddress common.Address, amount *big.Int
 	if FailOnError(err, "client.PendingNonceAt") == true {
 		return nil, err
 	}
-	//check if sender balance is enough to make payment
-	senderBalance := CheckCryptoBalance(fromAddress, client)
 
-	total := gasPrice.Add(amount, gasPrice)
-	if total.CmpAbs(senderBalance) <= 0 {
-		return nil, errors.New("Insufficient funds to initiate transaction")
-	}
+	// //:::::::::check if sender balance is enough to make payment
+	// senderBalance := CheckCryptoBalance(fromAddress, client)
 
+	// total := gasPrice.Add(amount, gasPrice)
+	// // fmt.Printf("Total to send wei: %v\n", total)
+	// fmt.Printf("Current sender balance: %v\n Needed amount : %v\n", weiToEther(senderBalance), weiToEther(total))
+
+	// if total.CmpAbs(senderBalance) <= 0 {
+	// 	return nil, errors.New("Insufficient funds to initiate transaction")
+	// }
+	// //:::END::::::check if sender balance is enough to make payment
 	trx := types.NewTransaction(nonce, toAddress, amount, gassLimit, gasPrice, AppData)
+	// fmt.Printf("Transaction: %v\n To address %v\n From address %v\n", trx, toAddress, fromAddress)
 	return trx, nil
 }
 
@@ -159,10 +173,7 @@ func CheckCryptoBalance(walletAddress common.Address, eClient *ethclient.Client)
 
 	balance, err := eClient.BalanceAt(context.Background(), walletAddress, nil)
 	_ = FailOnError(err, "eClient.BalanceAt")
-	fmt.Printf("Balance at choosen testnet wei (%v) \n", balance)
-	ethBalance := weiToEther(balance)
-	fmt.Printf("Balance at choosen testnet ETH (%v) \n", ethBalance)
-
+	//ethBalance := weiToEther(balance)
 	return balance
 }
 
@@ -229,6 +240,11 @@ func weiToEther(weiValue *big.Int) *big.Float {
 
 	return ethValue
 }
+
+// //weiToEther - converts given wei to ether
+// func EtherTowei(EtherValue *big.Float) *big.Int {
+// 	return new(big.Int).Mul(EtherValue, big.NewInt(Ether))
+// }
 
 //GenPrivateKey - will generate and return a pointer to a new ECDSA private key
 func GenPrivateKey() (*ecdsa.PrivateKey, error) {
