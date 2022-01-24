@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
-	"github.com/Prosp3r/smartdo/deploy"
+	"github.com/Prosp3r/smartdo/interact"
 	"github.com/Prosp3r/smartdo/utility"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -78,7 +78,12 @@ func main() {
 	//end process sample transaction
 
 	//Deploy smart Contract to chosen testnet
-	_ = deploy.Deploy(eClient, TestUserName1, TestPassword1)
+	// _ = deploy.Deploy(eClient, TestUserName1, TestPassword1)
+
+	//Interact with contract of Hex: 0x4241D10e086895Ca1E08903baB2778e49aa31d37
+	TransHex := "0x4241D10e086895Ca1E08903baB2778e49aa31d37"
+	_ = interact.Interact(eClient, TestUserName1, TestPassword1, TransHex)
+
 }
 
 func ProcessSampleTransaction(eClient *ethclient.Client) {
