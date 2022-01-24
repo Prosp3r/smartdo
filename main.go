@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"math/big"
 
+	"github.com/Prosp3r/smartdo/deploy"
+	"github.com/Prosp3r/smartdo/utility"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
@@ -12,9 +14,8 @@ import (
 
 var (
 	EvMOSNet = "http://192.168.8.105:8545"
-	// MainNet  = "https://mainnet.infura.io/v3/4b0fe94094e047ffa6292fc8065e42b8"
-	MainNet = "https://mainnet.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
-	GanaChe = ""
+	MainNet  = "https://mainnet.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+	GanaChe  = ""
 
 	RinkByTestNet  = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 	KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
@@ -73,26 +74,28 @@ func main() {
 	defer eClient.Close()
 
 	//Process sample transaction
-	ProcessSampleTransaction(eClient)
+	// ProcessSampleTransaction(eClient)
 	//end process sample transaction
 
+	//Deploy smart Contract to chosen testnet
+	_ = deploy.Deploy(eClient, TestUserName1, TestPassword1)
 }
 
 func ProcessSampleTransaction(eClient *ethclient.Client) {
 
-	senderKeys, err := ReadCryptoKey(TestPassword1, TestUserName1)
+	senderKeys, err := utility.ReadCryptoKey(TestPassword1, TestUserName1)
 	_ = FailOnError(err, "ReadCryptoWallet")
 
-	senderWallet, err := GetUserAddress(TestPassword1, TestUserName1)
+	senderWallet, err := utility.GetUserAddress(TestPassword1, TestUserName1)
 	_ = FailOnError(err, "GetUserAddress")
 
-	receiverWallet, err := GetUserAddress(TestPassword2, TestUserName2)
+	receiverWallet, err := utility.GetUserAddress(TestPassword2, TestUserName2)
 	_ = FailOnError(err, "GetUserAddress")
 
 	//send ether
 	amount := big.NewInt(5000000000) //wei
 	var AppData []byte = nil
-	transaction, err := CreateNewTransaction(*senderWallet, *receiverWallet, amount, eClient, AppData)
+	transaction, err := utility.CreateNewTransaction(*senderWallet, *receiverWallet, amount, eClient, AppData)
 	if FailOnError(err, "CreateNewTransaction") == true {
 		return
 	}
@@ -107,7 +110,7 @@ func ProcessSampleTransaction(eClient *ethclient.Client) {
 		return
 	}
 
-	sendTx, err := SendTransaction(eClient, signedTranx)
+	sendTx, err := utility.SendTransaction(eClient, signedTranx)
 	if FailOnError(err, "CreateNewTransaction") == true {
 		return
 	}

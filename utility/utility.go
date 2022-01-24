@@ -14,7 +14,23 @@ import (
 	"github.com/ethereum/go-ethereum/common/hexutil"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/ethclient"
 )
+
+var (
+	// EvMOSNet = "http://192.168.8.105:8545"
+	// // MainNet  = "https://mainnet.infura.io/v3/4b0fe94094e047ffa6292fc8065e42b8"
+	// MainNet = "https://mainnet.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+	// GanaChe = ""
+
+	// RinkByTestNet  = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+	// KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+	// RopstenTestNet = "https://ropsten.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+
+	KeyStoreLocation = "./wallet"
+)
+
+
 
 func FailOnError(err error, note string) bool {
 	if err != nil {
