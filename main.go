@@ -79,6 +79,14 @@ func main() {
 	_ = FailOnError(err, "Error creating ether client")
 	defer eClient.Close()
 
+	//Process sample transaction
+	ProcessSampleTransaction(eClient)
+	//end process sample transaction
+
+}
+
+func ProcessSampleTransaction(eClient *ethclient.Client) {
+
 	senderKeys, err := ReadCryptoKey(TestPassword1, TestUserName1)
 	_ = FailOnError(err, "ReadCryptoWallet")
 
@@ -89,7 +97,7 @@ func main() {
 	_ = FailOnError(err, "GetUserAddress")
 
 	//send ether
-	amount := big.NewInt(500000) //wei
+	amount := big.NewInt(5000000000) //wei
 	var AppData []byte = nil
 	transaction, err := CreateNewTransaction(*senderWallet, *receiverWallet, amount, eClient, AppData)
 	if FailOnError(err, "CreateNewTransaction") == true {
@@ -113,7 +121,6 @@ func main() {
 
 	// sendTxH := common.HexToAddress(*sendTx)
 	fmt.Printf("Transaction hash : %v\n\n", *sendTx)
-
 }
 
 //SendTransaction - sends transaction to blockchain
