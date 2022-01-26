@@ -31,7 +31,7 @@ func PreTransaction(con *ethclient.Client, username, password, CcontractHex stri
 	var pt PreTransactor
 
 	//Get user's crypto wallet
-	userCryptoAddy, err := utility.ReadCryptoKey(password, username)
+	userCryptoAddy, err := utility.ReadCryptoKey(username, password	)
 	if utility.FailOnError(err, "utility.ReadCryptoKey") == true {
 		return nil, err
 	}
@@ -94,23 +94,50 @@ func InteractAdd(con *ethclient.Client, username, password, CcontractHex string)
 	return true
 }
 
-func InteractList(con *ethclient.Client, username, password, CcontractHex string) bool {
+func InteractList(con *ethclient.Client, username, password, CcontractHex string) (*[]todo.TodoTask, error) {
 
 	preTrans, err := PreTransaction(con, username, password, CcontractHex)
 	if utility.FailOnError(err, "PreTransaction") == true {
-		return false
+		return nil, err
 	}
 
 	transaction, err := preTrans.td.List(&bind.CallOpts{
 		From: preTrans.bnd.From,
 	})
 	if utility.FailOnError(err, "preTrans.td.List") == true {
-		return false
+		return nil, err
 	}
 
 	fmt.Println("-------------------RESPONSE FROM TRANSACTION--------------------")
 	fmt.Printf("Transaction : %v\n", transaction)
 	// fmt.Printf("Transaction Hex: %v\n", transaction.Hash().Hex())
+	fmt.Println("-------------------END RESPONSE FROM TRANSACTION----------------")
+
+	return &transaction, nil
+}
+
+func InteractUpdate(con *ethclient.Client, username, password, CcontractHex, ItemName, updatedTask string) bool {
+
+	preTrans, err := PreTransaction(con, username, password, CcontractHex)
+	if utility.FailOnError(err, "PreTransaction") == true {
+		return false
+	}
+
+	var itemId *big.Int
+	iid, _ := InteractList(con, username, password, CcontractHex)
+	for i, v := range *iid {
+		if v.Content == ItemName {
+			itemId = big.NewInt(int64(i))
+		}
+	}
+	transaction, err := preTrans.td.Update(preTrans.bnd, itemId, updatedTask)
+	if utility.FailOnError(err, "ipreTrans.td.Update") == true {
+		return false
+	}
+
+	fmt.Println("-------------------RESPONSE FROM TRANSACTION--------------------")
+	fmt.Printf("Transaction Hash: %v\n", transaction.Hash())
+	fmt.Printf("Transaction Hex: %v\n", transaction.Hash().Hex())
 	fmt.Println("-------------------END RESPONSE FROM TRANSACTION----------------")
 
 	return true

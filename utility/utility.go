@@ -1,9 +1,9 @@
 package utility
 
 import (
-	"fmt"
 	"context"
 	"crypto/ecdsa"
+	"fmt"
 	"io/ioutil"
 	"math"
 	"math/big"
@@ -27,10 +27,8 @@ var (
 	// KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 	// RopstenTestNet = "https://ropsten.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 
-	KeyStoreLocation = "./wallet"
+	KeyStoreLocation = "wallet"
 )
-
-
 
 func FailOnError(err error, note string) bool {
 	if err != nil {
@@ -39,7 +37,6 @@ func FailOnError(err error, note string) bool {
 	}
 	return false
 }
-
 
 //SendTransaction - sends transaction to blockchain
 func SendTransaction(eClient *ethclient.Client, tranx *types.Transaction) (*string, error) {
@@ -52,9 +49,9 @@ func SendTransaction(eClient *ethclient.Client, tranx *types.Transaction) (*stri
 	return &TxHash, nil
 }
 
-func GetUserAddress(password, username string) (*common.Address, error) {
+func GetUserAddress(username, password string) (*common.Address, error) {
 
-	wallet, err := ReadCryptoKey(password, username)
+	wallet, err := ReadCryptoKey(username, password)
 	if FailOnError(err, "ReadCryptoWallet") == true {
 		return nil, err
 	}
@@ -98,12 +95,12 @@ func CheckCryptoBalance(walletAddress common.Address, eClient *ethclient.Client)
 
 	balance, err := eClient.BalanceAt(context.Background(), walletAddress, nil)
 	_ = FailOnError(err, "eClient.BalanceAt")
-	//ethBalance := weiToEther(balance)
+	//ethBalance := WeiToEther(balance)
 	return balance
 }
 
 //CreateCryptoWallet - Creates an encrypted wallet with the given password
-func CreateCryptoWallet(password, username string) *accounts.Account {
+func CreateCryptoWallet(username, password string) *accounts.Account {
 	walletLocation := KeyStoreLocation + "/" + username
 	key := keystore.NewKeyStore(walletLocation, keystore.StandardScryptN, keystore.StandardScryptP)
 	account, err := key.NewAccount(password)
@@ -113,11 +110,16 @@ func CreateCryptoWallet(password, username string) *accounts.Account {
 }
 
 //ReadCryptoKey - Decrypts and returns private key with user's password
-func ReadCryptoKey(password, username string) (*keystore.Key, error) {
+func ReadCryptoKey(username, password string) (*keystore.Key, error) {
 
 	walletLocation := KeyStoreLocation + "/" + username
+
 	all, err := ioutil.ReadDir(walletLocation)
 	_ = FailOnError(err, "RedDir")
+	if len(all) < 1 {
+		return nil, err
+	}
+
 	walletFile := all[0]
 
 	readFile, err := ioutil.ReadFile(walletLocation + "/" + walletFile.Name())
@@ -157,7 +159,7 @@ func getWalletBalance(ec *ethclient.Client, addr string) (*big.Int, error) {
 }
 
 //weiToEther - converts given wei to ether
-func weiToEther(weiValue *big.Int) *big.Float {
+func WeiToEther(weiValue *big.Int) *big.Float {
 	//11 eth = 10^18 wei
 	var fB = new(big.Float)
 	fB.SetString(weiValue.String())

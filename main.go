@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"math/big"
 
+	// "github.com/Prosp3r/smartdo/interact"
 	"github.com/Prosp3r/smartdo/interact"
 	"github.com/Prosp3r/smartdo/utility"
 	"github.com/ethereum/go-ethereum/common"
@@ -17,7 +18,7 @@ var (
 	MainNet  = "https://mainnet.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 	GanaChe  = ""
 
-	RinkByTestNet  = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+	RinkeByTestNet = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 	KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 	RopstenTestNet = "https://ropsten.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 
@@ -27,7 +28,7 @@ var (
 	TestPassword2    = "password"
 	TestUserName2    = "efemena"
 
-	ActiveNet = RopstenTestNet //RinkByTestNet //KovanTestNet
+	ActiveNet = RopstenTestNet //RinkeByTestNet //KovanTestNet
 )
 
 func FailOnError(err error, note string) bool {
@@ -73,6 +74,19 @@ func main() {
 	_ = FailOnError(err, "Error creating ether client")
 	defer eClient.Close()
 
+	/*
+		Commands
+		1. Check current app balance
+		2. Query app
+		3. Send tokens to app
+		4. Add Task
+		5. Change Task
+		6. List Tasks
+		7. Delete Task
+		8. Update Task
+		9. Create wallet
+	*/
+
 	//Process sample transaction
 	// ProcessSampleTransaction(eClient)
 	//end process sample transaction
@@ -82,20 +96,27 @@ func main() {
 
 	//Interact with contract of Hex: 0x4241D10e086895Ca1E08903baB2778e49aa31d37
 	TransHex := "0x4241D10e086895Ca1E08903baB2778e49aa31d37"
+
 	// _ = interact.InteractAdd(eClient, TestUserName1, TestPassword1, TransHex)
-	_ = interact.InteractList(eClient, TestUserName1, TestPassword1, TransHex)
+	_, err = interact.InteractList(eClient, TestUserName1, TestPassword1, TransHex)
+	// _ = interact.InteractUpdate(eClient, TestUserName1, TestPassword1, TransHex, "MAKE BURGER", "MAKE MORE BURGER")
+
+	//CheckBalance
+	// address, err := utility.GetUserAddress(TestUserName1, TestPassword2)
+	// balance := utility.CheckCryptoBalance(*address, eClient)
+	// fmt.Printf("Blanace wei: %v\n Balance ETH : %v\n", balance, utility.WeiToEther(balance))
 
 }
 
 func ProcessAddTransaction(eClient *ethclient.Client) {
 
-	senderKeys, err := utility.ReadCryptoKey(TestPassword1, TestUserName1)
+	senderKeys, err := utility.ReadCryptoKey(TestUserName1, TestPassword1)
 	_ = FailOnError(err, "ReadCryptoWallet")
 
-	senderWallet, err := utility.GetUserAddress(TestPassword1, TestUserName1)
+	senderWallet, err := utility.GetUserAddress(TestUserName1, TestPassword1)
 	_ = FailOnError(err, "GetUserAddress")
 
-	receiverWallet, err := utility.GetUserAddress(TestPassword2, TestUserName2)
+	receiverWallet, err := utility.GetUserAddress(TestUserName2, TestPassword2)
 	_ = FailOnError(err, "GetUserAddress")
 
 	//send ether
