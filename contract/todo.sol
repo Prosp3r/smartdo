@@ -2,7 +2,7 @@
 pragma solidity >=0.7.0 <0.9.0;
 
 
-import "../.deps/npm/@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import "../.deps/npm/@openzeppelin/contracts/token/ERC20.sol";
 import "../.deps/npm/@openzeppelin/contracts/access/Ownable.sol";
 
 /// @custom:security-contact prosper@samedayshop.com
