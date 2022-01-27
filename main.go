@@ -93,22 +93,36 @@ func main() {
 	*/
 
 	arg := os.Args
-	command := arg[0]
-	fmt.Printf(command)
-
+	command := arg[1]
+	username := arg[2]
+	password := arg[3]
+	fmt.Printf("Arguments: %v\n %v\n %v\n", command, username, password)
 
 	//Process sample transaction
 	// ProcessSampleTransaction(eClient)
 	//end process sample transaction
 
-	//Deploy smart Contract to chosen testnet
-	dResult, err := deploy.Deploy(eClient, TestUserName1, TestPassword1)
-	_ = FailOnError(err, "Eror creating a deployment")
+	if command == "deploy" {
+		//Deploy smart Contract to chosen testnet
+		dResult, err := deploy.Deploy(eClient, username, password)
+		if FailOnError(err, "Eror creating a deployment") == true {
+			fmt.Printf("%v\n", err)
+			return
+		}
+		TransHex := dResult.TransactionHex
+		fmt.Println(TransHex)
+	}
 
+	if command == "adduser" {
+		uWallet, err := utility.CreateCryptoWallet(username, password)
+		if utility.FailOnError(err, "utility.CreateCryptoWallet") {
+			fmt.Println("Cound not create account - ", err)
+			return
+		}
+		fmt.Printf("Your crypto wallet : %v \n Username: %v \n Password: %v \n", uWallet.Address, username, password)
+	}
 	//Interact with contract of Hex: 0x4241D10e086895Ca1E08903baB2778e49aa31d37
 	// TransHex := "0x4241D10e086895Ca1E08903baB2778e49aa31d37"
-	TransHex := dResult.TransactionHex
-	fmt.Println(TransHex)
 
 	// _ = interact.InteractAdd(eClient, TestUserName1, TestPassword1, TransHex)
 	// _, err = interact.InteractList(eClient, TestUserName1, TestPassword1, TransHex)

@@ -20,7 +20,7 @@ var Result DeployResult
 
 func Deploy(con *ethclient.Client, username, password string) (*DeployResult, error) {
 	//Get user's crypto wallet
-	userCryptoAddy, err := utility.ReadCryptoKey(password, username)
+	userCryptoAddy, err := utility.ReadCryptoKey(username, password)
 	if utility.FailOnError(err, "utility.ReadCryptoKey") == true {
 		return nil, err
 	}

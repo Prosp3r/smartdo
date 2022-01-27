@@ -100,13 +100,14 @@ func CheckCryptoBalance(walletAddress common.Address, eClient *ethclient.Client)
 }
 
 //CreateCryptoWallet - Creates an encrypted wallet with the given password
-func CreateCryptoWallet(username, password string) *accounts.Account {
+func CreateCryptoWallet(username, password string) (*accounts.Account, error) {
 	walletLocation := KeyStoreLocation + "/" + username
 	key := keystore.NewKeyStore(walletLocation, keystore.StandardScryptN, keystore.StandardScryptP)
 	account, err := key.NewAccount(password)
-	_ = FailOnError(err, "key.NewAccount")
-	fmt.Println(account.Address)
-	return &account
+	if FailOnError(err, "key.NewAccount") == true {
+		return nil, err
+	}
+	return &account, nil
 }
 
 //ReadCryptoKey - Decrypts and returns private key with user's password
