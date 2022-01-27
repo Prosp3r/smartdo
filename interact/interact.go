@@ -2,6 +2,7 @@ package interact
 
 import (
 	"context"
+	"fmt"
 	"math/big"
 
 	todo "github.com/Prosp3r/smartdo/gen"
@@ -21,19 +22,19 @@ CREATION TRANSACTION HEX : 0x0cd557dd619d1f3e0c426fd67a8f710f8baa93ac03b2a3e36f5
 */
 
 type InputQuery struct {
-	AddressSpender   common.Address      `json:"addressspender,omitempty"`
-	Amount           uint256.Int `json:"amount,omitempty"`
-	SubtractedValue  uint256.Int `json:"subtractedvalue,omitempty"`
-	AddedValue       uint256.Int `json:"addedvalue,omitempty"`
-	AddressTo        common.Address      `json:"addressto,omitempty"`
-	AddressRecipient common.Address      `json:"addressrecipient,omitempty"`
-	AddressSender    common.Address      `json:"addresssender,omitempty"`
-	AddressNewOwner  common.Address      `json:"addressnewowner,omitempty"`
-	AddressOwner     common.Address      `json:"addressowner,omitempty"`
-	AddressAccount   common.Address      `json:"addressaccount,omitempty"`
-	Username         string      `json:"username"`
-	Password         string      `json:"password"`
-	CcontractHex     string      `json:"CcontractHex"`
+	AddressSpender   common.Address `json:"addressspender,omitempty"`
+	Amount           uint256.Int    `json:"amount,omitempty"`
+	SubtractedValue  uint256.Int    `json:"subtractedvalue,omitempty"`
+	AddedValue       uint256.Int    `json:"addedvalue,omitempty"`
+	AddressTo        common.Address `json:"addressto,omitempty"`
+	AddressRecipient common.Address `json:"addressrecipient,omitempty"`
+	AddressSender    common.Address `json:"addresssender,omitempty"`
+	AddressNewOwner  common.Address `json:"addressnewowner,omitempty"`
+	AddressOwner     common.Address `json:"addressowner,omitempty"`
+	AddressAccount   common.Address `json:"addressaccount,omitempty"`
+	Username         string         `json:"username"`
+	Password         string         `json:"password"`
+	CcontractHex     string         `json:"CcontractHex"`
 }
 
 type Response struct{}
@@ -95,7 +96,7 @@ func PreTransaction(con *ethclient.Client, input *InputQuery) (*PreTransactor, e
 }
 
 //
-func Approve(con *ethclient.Client, input *InputQuery) (*Response, error) {
+func Approve(con *ethclient.Client, input *InputQuery) (*bool, error) {
 	//implement me
 	return nil, nil
 }
@@ -112,32 +113,32 @@ func IncreaseAllowance(con *ethclient.Client, input *InputQuery) (*bool, error) 
 	return nil, nil
 }
 
-//
-func Mint(ccon *ethclient.Client, input *InputQuery) (*Response, error) {
+//Mint - Create more tokens
+func Mint(ccon *ethclient.Client, input *InputQuery) (*bool, error) {
 	//implement me
 	return nil, nil
 }
 
 //
-func RenounceOwnership(con *ethclient.Client, input *InputQuery) (*Response, error) {
+func RenounceOwnership(con *ethclient.Client, input *InputQuery) (*bool, error) {
 	//implement me
 	return nil, nil
 }
 
 //
-func Transfer(con *ethclient.Client, input *InputQuery) (*Response, error) {
+func Transfer(con *ethclient.Client, input *InputQuery) (*bool, error) {
 	//implement me
 	return nil, nil
 }
 
 //
-func TransferFrom(con *ethclient.Client, input *InputQuery) (*Response, error) {
+func TransferFrom(con *ethclient.Client, input *InputQuery) (*bool, error) {
 	//implement me
 	return nil, nil
 }
 
 //
-func TransferOwnership(con *ethclient.Client, input *InputQuery) (*Response, error) {
+func TransferOwnership(con *ethclient.Client, input *InputQuery) (*bool, error) {
 	//implement me
 	return nil, nil
 }
@@ -178,9 +179,17 @@ func Symbol(con *ethclient.Client, input *InputQuery) (*string, error) {
 	return nil, nil
 }
 
-//
+//TotalSupply - Returns total amount of tokens in existence
 func TotalSupply(con *ethclient.Client, input *InputQuery) (*uint256.Int, error) {
 	//implement me
+	pt, err := PreTransaction(con, input)
+	if utility.FailOnError(err, "PreTransaction") == true {
+		return nil, err
+	}
+	// pt.bnd
+	// tdo := todo.NewTodo(input.CcontractHex)
+	fmt.Println(pt)
+
 	return nil, nil
 }
 

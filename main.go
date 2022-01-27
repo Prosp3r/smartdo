@@ -4,10 +4,11 @@ import (
 	"context"
 	"fmt"
 	"math/big"
+	"os"
 
 	// "github.com/Prosp3r/smartdo/interact"
 	"github.com/Prosp3r/smartdo/deploy"
-	"github.com/Prosp3r/smartdo/interact"
+	// "github.com/Prosp3r/smartdo/interact"
 	"github.com/Prosp3r/smartdo/utility"
 	"github.com/ethereum/go-ethereum/common"
 	"github.com/ethereum/go-ethereum/core/types"
@@ -67,6 +68,9 @@ var address2 common.Address //"0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d"
 
 func main() {
 
+	//Run OS flags
+	// flagger()
+
 	//Load Sample data
 	_ = loadSampleData()
 
@@ -88,6 +92,11 @@ func main() {
 		9. Create wallet
 	*/
 
+	arg := os.Args
+	command := arg[0]
+	fmt.Printf(command)
+
+
 	//Process sample transaction
 	// ProcessSampleTransaction(eClient)
 	//end process sample transaction
@@ -104,7 +113,7 @@ func main() {
 	// _ = interact.InteractAdd(eClient, TestUserName1, TestPassword1, TransHex)
 	// _, err = interact.InteractList(eClient, TestUserName1, TestPassword1, TransHex)
 
-	_ = interact.InteractUpdate(eClient, TestUserName1, TestPassword1, TransHex, "MAKE BURGER", "MAKE MORE BURGER")
+	// _ = interact.InteractUpdate(eClient, TestUserName1, TestPassword1, TransHex, "MAKE BURGER", "MAKE MORE BURGER")
 
 	//CheckBalance
 	// address, err := utility.GetUserAddress(TestUserName1, TestPassword2)
