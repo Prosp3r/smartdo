@@ -3,6 +3,7 @@ package utility
 import (
 	"context"
 	"crypto/ecdsa"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -101,7 +102,14 @@ func CheckCryptoBalance(walletAddress common.Address, eClient *ethclient.Client)
 
 //CreateCryptoWallet - Creates an encrypted wallet with the given password
 func CreateCryptoWallet(username, password string) (*accounts.Account, error) {
+
+	
 	walletLocation := KeyStoreLocation + "/" + username
+	_, err := ioutil.ReadDir(walletLocation)
+	if err == nil {
+		return nil, errors.New("Username already in use")
+	}
+	
 	key := keystore.NewKeyStore(walletLocation, keystore.StandardScryptN, keystore.StandardScryptP)
 	account, err := key.NewAccount(password)
 	if FailOnError(err, "key.NewAccount") == true {

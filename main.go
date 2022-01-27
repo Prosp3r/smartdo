@@ -102,6 +102,7 @@ func main() {
 	// ProcessSampleTransaction(eClient)
 	//end process sample transaction
 
+	//Deploy smart contract
 	if command == "deploy" {
 		//Deploy smart Contract to chosen testnet
 		dResult, err := deploy.Deploy(eClient, username, password)
@@ -113,6 +114,7 @@ func main() {
 		fmt.Println(TransHex)
 	}
 
+	//Create account
 	if command == "adduser" {
 		uWallet, err := utility.CreateCryptoWallet(username, password)
 		if utility.FailOnError(err, "utility.CreateCryptoWallet") {
@@ -121,6 +123,8 @@ func main() {
 		}
 		fmt.Printf("Your crypto wallet : %v \n Username: %v \n Password: %v \n", uWallet.Address, username, password)
 	}
+
+	
 	//Interact with contract of Hex: 0x4241D10e086895Ca1E08903baB2778e49aa31d37
 	// TransHex := "0x4241D10e086895Ca1E08903baB2778e49aa31d37"
 
