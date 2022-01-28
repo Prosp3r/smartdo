@@ -2,9 +2,9 @@
 
 ### A simple app built to deploy and interract with an ERC20 Token Smart Contract on ETH compatible testnets including Rinkeby testnet written in Go.
 
-This is a simple smart contract to test out the workings of Go interractions with ERC20 Tokens
-Can deploy and manage multiple contracts from this single interface.
-Works on these different testnets
+1. This is a simple generic smart contract program to demonstrate the workings of Go interractions with ERC20 Tokens
+2. This program can deploy and manage multiple contracts from this single interface.
+3. Works on these different testnets
 
 - RinkeByTestNet = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 - KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
