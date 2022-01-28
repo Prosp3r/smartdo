@@ -18,7 +18,7 @@ NOTE: Given more time, this could be made more dynamic.
 
 
 ### Usage
-    `$ ./smartdo <command> <options>`
+    $ ./smartdo <command> <options>
 
 list of functionalities and the commands to test them out
 
@@ -61,7 +61,7 @@ list of functionalities and the commands to test them out
     This command transfers token from the reserves on the smart contract to the recipient_address. it can only be ran by the token deployer account.
     
     `$ ./smartdo contract-transfer <username> <password> <contractName e.g. logi> <recipient_address e.g 0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d> <amountOfTokens e.g. 2000000000000000000>`
-    
+
 
 
 ... A work in progress
