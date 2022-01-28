@@ -22,7 +22,7 @@ NOTE: Given more time, this could be made more dynamic.
     $ ./smartdo <command> <options>
     
 
-list of functionalities and the commands to test them out
+List of functionalities and the commands to test them out
 
 
 1. Create account - Create a new encrypted ethereum compatible wallet
