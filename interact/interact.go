@@ -7,12 +7,14 @@ import (
 
 	todo "github.com/Prosp3r/smartdo/gen"
 	"github.com/Prosp3r/smartdo/utility"
+
+	// "github.com/ethclient/common/types"
 	"github.com/ethereum/go-ethereum/accounts/abi/bind"
 	"github.com/ethereum/go-ethereum/common"
+	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 	"github.com/holiman/uint256"
 )
-
 
 type InputQuery struct {
 	AddressSpender   common.Address `json:"addressspender,omitempty"`
@@ -107,22 +109,28 @@ func IncreaseAllowance(con *ethclient.Client, input *InputQuery) (*bool, error) 
 }
 
 //Mint - Create more tokens
-func Mint(con *ethclient.Client, ii *InputQuery) bool {
+func Mint(con *ethclient.Client, ii *InputQuery) (*types.Transaction, error) {
 	//implement me
 	pt, err := PreTransaction(con, ii)
 	if utility.FailOnError(err, "interact.PreTransaction") == true {
 		fmt.Println("Cound not prepare pretransactor - ", err)
-		return false
+		return nil, err
 	}
 
 	contractAdd := common.HexToAddress(ii.CcontractHex)
 	cTodo, err := todo.NewTodo(contractAdd, con)
 	if utility.FailOnError(err, "Creating contract bindings") == true {
 		fmt.Println("Could not access contract bindings")
+		return nil, err
 	}
 
-	cTodo.Mint(pt.bnd, ii.AddressRecipient, ii.Amount.ToBig())
-	return false
+	mtrans, err := cTodo.Mint(pt.bnd, ii.AddressRecipient, ii.Amount.ToBig())
+	if utility.FailOnError(err, "cTodo.Mint") == true {
+		fmt.Println("Could not access contract bindings")
+		return nil, err
+	}
+
+	return mtrans, nil
 }
 
 //
@@ -132,12 +140,12 @@ func RenounceOwnership(con *ethclient.Client, input *InputQuery) (*bool, error) 
 }
 
 //
-func Transfer(con *ethclient.Client, ii *InputQuery) bool {
+func Transfer(con *ethclient.Client, ii *InputQuery) (*types.Transaction, error) {
 	//implement me
 	pt, err := PreTransaction(con, ii)
 	if utility.FailOnError(err, "interact.PreTransaction") == true {
 		fmt.Println("Cound not prepare pretransactor - ", err)
-		return false
+		return nil, nil
 	}
 
 	contractAdd := common.HexToAddress(ii.CcontractHex)
@@ -145,9 +153,13 @@ func Transfer(con *ethclient.Client, ii *InputQuery) bool {
 	if utility.FailOnError(err, "Creating contract bindings") == true {
 		fmt.Println("Could not access contract bindings")
 	}
+	ttrans, err := cTodo.Transfer(pt.bnd, ii.AddressRecipient, ii.Amount.ToBig())
+	if utility.FailOnError(err, "cTodo.Transfer") == true {
+		fmt.Println("Could not transfer tokens")
+		return nil, err
+	}
 
-	cTodo.Transfer(pt.bnd, ii.AddressRecipient, ii.Amount.ToBig())
-	return false
+	return ttrans, nil
 }
 
 //

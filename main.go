@@ -229,7 +229,7 @@ func main() {
 	}
 
 	if command == "contract-mint" {
-		// $ ./smartdo contract-mint username password <contractName e.g. logi> <recipient_address e.g 0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d> <amountOfTokens e.g. 200>
+		// $ ./smartdo contract-mint username password <contractName e.g. logi> <recipient_address e.g 0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d> <amountOfTokens e.g. 200000000000000>
 		//username must be the one that deployed the contract
 
 		username := arg[2] //admin username
@@ -260,13 +260,19 @@ func main() {
 		ii.Password = password
 		ii.AddressRecipient = common.HexToAddress(recipientAddress)
 
-		interact.Mint(eClient, &ii)
+		interact, err := interact.Mint(eClient, &ii)
+		if utility.FailOnError(err, "interact.Mint") == true {
+			fmt.Println("Cound not mint token(s) - ", err)
+			return
+		}
+
+		fmt.Println(interact.Hash().Hex())
+		fmt.Printf("Transaction Hex : %v \n", interact.Hash().Hex())
 		return
 	}
 
-
 	if command == "contract-transfer" {
-		// $ ./smartdo contract-transfer username password <contractName e.g. logi> <recipient_address e.g 0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d> <amountOfTokens e.g. 200>
+		// $ ./smartdo contract-transfer username password <contractName e.g. logi> <recipient_address e.g 0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d> <amountOfTokens e.g. 2000000000000000000>
 		//username must be the one that deployed the contract
 
 		username := arg[2] //admin username
@@ -297,7 +303,14 @@ func main() {
 		ii.Password = password
 		ii.AddressRecipient = common.HexToAddress(recipientAddress)
 
-		interact.Mint(eClient, &ii)
+		interact, err := interact.Transfer(eClient, &ii)
+		
+		if utility.FailOnError(err, "interact.Mint") == true {
+			fmt.Println("Cound not mint token(s) - ", err)
+			return
+		}
+
+		fmt.Printf("Transaction Hex : %v \n", interact.Hash().Hex())
 		return
 	}
 }
