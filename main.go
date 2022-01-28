@@ -45,26 +45,6 @@ func FailOnError(err error, note string) bool {
 	return false
 }
 
-//SampleData - temporary information for testing
-type SampleData struct {
-	address         string
-	contractAddress string
-	tranxHash       string
-}
-
-var SD SampleData
-
-func loadSampleData() bool {
-	SD.address = "0x9e77cc237460bbbc8935457e487d4ecfa59030c3"
-	SD.contractAddress = "0x4b978d499f2ae9be60e765b7c531faf847863255"
-	SD.tranxHash = "0xf943f16dc36ad99ecce29c3eb351a7ff744bf86093dace022ed5fbffbb651af9"
-
-	return true
-
-	//address1//0xd54dBb460e43463D9382E38d06aAf258a27D050a
-	//address2//0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d
-}
-
 //END SampleData - temporary information for testing
 
 var address1 common.Address //"0xd54dBb460e43463D9382E38d06aAf258a27D050a"
@@ -74,9 +54,6 @@ func main() {
 
 	//Run OS flags
 	// flagger()
-
-	//Load Sample data
-	_ = loadSampleData()
 
 	// eClient, err := ethclient.DialContext(context.Background(), ActiveNet)
 	eClient, err := ethclient.Dial(ActiveNet)
@@ -131,6 +108,7 @@ func main() {
 	//Create account
 	if command == "adduser" {
 		//Creates a new encrypted ethereum compatible wallet
+		// $ ./smartdo adduser username password
 		username := arg[2]
 		password := arg[3]
 		uWallet, err := utility.CreateCryptoWallet(username, password)
@@ -304,7 +282,7 @@ func main() {
 		ii.AddressRecipient = common.HexToAddress(recipientAddress)
 
 		interact, err := interact.Transfer(eClient, &ii)
-		
+
 		if utility.FailOnError(err, "interact.Mint") == true {
 			fmt.Println("Cound not mint token(s) - ", err)
 			return
