@@ -6,10 +6,10 @@ This is a simple smart contract to test out the workings of Go interractions wit
 Can deploy and manage multiple contracts from this single interface.
 Works on these different testnets
 
-RinkeByTestNet = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
-KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
-RopstenTestNet = "https://ropsten.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
-EvMOSNet = "http://<localserverIP>:8545"
+- RinkeByTestNet = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+- KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+- RopstenTestNet = "https://ropsten.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+- EvMOSNet = "http://<localserverIP>:8545"
 
 NB: Ganache was ommitted from the tests because of time reports that it did not behave like a real testnet
 
