@@ -4,6 +4,14 @@
 
 This is a simple smart contract to test out the workings of Go interractions with ERC20 Tokens
 Can deploy and manage multiple contracts from this single interface.
+Works on these different testnets
+
+RinkeByTestNet = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+RopstenTestNet = "https://ropsten.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+
+The ActiveNet variable in main.go can be changed to reflect which testnet the app should run on.
+NOTE: Given more timee, this could be made more dynamic.
 
 ### Usage
  $ ./smartdo <command> <options>
