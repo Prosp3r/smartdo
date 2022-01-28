@@ -14,9 +14,11 @@ list of functionalities and the commands to test them out
     $ ./smartdo adduser username password
 
 2. Deploy contract
-    
+
 3. Check Wallet Address
+    $ ./smartdo mywallet username password
 4. Check balance
+    
 5. Send wei
 6. Mint Token
 7. Transfer Tokens
