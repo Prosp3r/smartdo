@@ -91,6 +91,26 @@ func CreateNewTransaction(fromAddress, toAddress common.Address, amount *big.Int
 	return trx, nil
 }
 
+
+func BindAndSendTransaction(eClient *ethclient.Client, transaction *types.Transaction, senderKeys *keystore.Key) (*string, error){
+	chainID, err := eClient.NetworkID(context.Background())
+	if FailOnError(err, "eClient.NetworkID") == true {
+		return nil, err
+	}
+	//sign transaction with private key
+	signedTranx, err := types.SignTx(transaction, types.NewEIP155Signer(chainID), senderKeys.PrivateKey)
+	if FailOnError(err, "SignTx") == true {
+		return nil, err
+	}
+
+	sendTx, err := SendTransaction(eClient, signedTranx)
+	if FailOnError(err, "CreateNewTransaction") == true {
+		return nil, err
+	}
+	return sendTx, nil
+}
+
+
 //CheckCryptoBalance - returns the balance of the given address on the ethereum(mainor testnet) network
 func CheckCryptoBalance(walletAddress common.Address, eClient *ethclient.Client) *big.Int {
 
@@ -103,13 +123,12 @@ func CheckCryptoBalance(walletAddress common.Address, eClient *ethclient.Client)
 //CreateCryptoWallet - Creates an encrypted wallet with the given password
 func CreateCryptoWallet(username, password string) (*accounts.Account, error) {
 
-	
 	walletLocation := KeyStoreLocation + "/" + username
 	_, err := ioutil.ReadDir(walletLocation)
 	if err == nil {
 		return nil, errors.New("Username already in use")
 	}
-	
+
 	key := keystore.NewKeyStore(walletLocation, keystore.StandardScryptN, keystore.StandardScryptP)
 	account, err := key.NewAccount(password)
 	if FailOnError(err, "key.NewAccount") == true {
@@ -136,7 +155,9 @@ func ReadCryptoKey(username, password string) (*keystore.Key, error) {
 		return nil, err
 	}
 	key, err := keystore.DecryptKey(readFile, password)
-	_ = FailOnError(err, "keystore.DecryptKey")
+	if FailOnError(err, "keystore.DecryptKey") == true {
+		return nil, err
+	}
 
 	// cryptoAddress := crypto.PubkeyToAddress(key.PrivateKey.PublicKey).Hex()
 	return key, nil
@@ -144,6 +165,7 @@ func ReadCryptoKey(username, password string) (*keystore.Key, error) {
 
 //GetWalletAddress - Returns wallet address
 func GetWalletAddress(privKey *keystore.Key) *common.Address {
+
 	walletHex := crypto.PubkeyToAddress(privKey.PrivateKey.PublicKey).Hex()
 	cryptoAddress := common.HexToAddress(walletHex)
 	return &cryptoAddress
@@ -157,7 +179,7 @@ func getLastNetBlockWei(ec *ethclient.Client) *types.Block {
 }
 
 //getWalletBalance - Returns the decimal balance of give wallet hex string
-func getWalletBalance(ec *ethclient.Client, addr string) (*big.Int, error) {
+func GetWalletBalance(ec *ethclient.Client, addr string) (*big.Int, error) {
 	address := common.HexToAddress(addr)
 	fmt.Printf("Address: %v - ", address)
 	balance, err := ec.BalanceAt(context.Background(), address, nil)
