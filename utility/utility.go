@@ -3,6 +3,7 @@ package utility
 import (
 	"context"
 	"crypto/ecdsa"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -28,8 +29,15 @@ var (
 	// KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 	// RopstenTestNet = "https://ropsten.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 
-	KeyStoreLocation = "wallet"
+	KeyStoreLocation   = "wallet"
+	ContractcsLocation = "loadedcontracts"
 )
+
+type DeployedContracts struct {
+	ContractHex     string `json:"contracthex"`
+	TranxHex        string `json:"tranxhex"`
+	NetworkDeployed string `json:"networkdeployed"`
+}
 
 func FailOnError(err error, note string) bool {
 	if err != nil {
@@ -91,8 +99,7 @@ func CreateNewTransaction(fromAddress, toAddress common.Address, amount *big.Int
 	return trx, nil
 }
 
-
-func BindAndSendTransaction(eClient *ethclient.Client, transaction *types.Transaction, senderKeys *keystore.Key) (*string, error){
+func BindAndSendTransaction(eClient *ethclient.Client, transaction *types.Transaction, senderKeys *keystore.Key) (*string, error) {
 	chainID, err := eClient.NetworkID(context.Background())
 	if FailOnError(err, "eClient.NetworkID") == true {
 		return nil, err
@@ -109,7 +116,6 @@ func BindAndSendTransaction(eClient *ethclient.Client, transaction *types.Transa
 	}
 	return sendTx, nil
 }
-
 
 //CheckCryptoBalance - returns the balance of the given address on the ethereum(mainor testnet) network
 func CheckCryptoBalance(walletAddress common.Address, eClient *ethclient.Client) *big.Int {
@@ -161,6 +167,21 @@ func ReadCryptoKey(username, password string) (*keystore.Key, error) {
 
 	// cryptoAddress := crypto.PubkeyToAddress(key.PrivateKey.PublicKey).Hex()
 	return key, nil
+}
+
+func ReadStoredContract(contractName string) (*DeployedContracts, error) {
+	contract := ContractcsLocation + "/" + contractName
+	readFile, err := ioutil.ReadFile(contract)
+	if FailOnError(err, "ioutil.ReadFile") == true {
+		return nil, err
+	}
+	var Dep DeployedContracts
+	err = json.Unmarshal(readFile, &Dep)
+	if FailOnError(err, "Could not unmarshal deploymnt info") == true {
+		return nil, err
+	}
+
+	return &Dep, nil
 }
 
 //GetWalletAddress - Returns wallet address

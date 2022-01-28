@@ -13,13 +13,6 @@ import (
 	"github.com/holiman/uint256"
 )
 
-/*
-PREVIOUS DEPLOYMENT
--------------------RESPONSE FROM TRANSACTION--------------------
-CONTRACT HEX: 0x4241D10e086895Ca1E08903baB2778e49aa31d37
-CREATION TRANSACTION HEX : 0x0cd557dd619d1f3e0c426fd67a8f710f8baa93ac03b2a3e36f577e53ac93b9c1
--------------------END RESPONSE FROM TRANSACTION----------------
-*/
 
 type InputQuery struct {
 	AddressSpender   common.Address `json:"addressspender,omitempty"`
@@ -114,9 +107,22 @@ func IncreaseAllowance(con *ethclient.Client, input *InputQuery) (*bool, error) 
 }
 
 //Mint - Create more tokens
-func Mint(ccon *ethclient.Client, input *InputQuery) (*bool, error) {
+func Mint(con *ethclient.Client, ii *InputQuery) bool {
 	//implement me
-	return nil, nil
+	pt, err := PreTransaction(con, ii)
+	if utility.FailOnError(err, "interact.PreTransaction") == true {
+		fmt.Println("Cound not prepare pretransactor - ", err)
+		return false
+	}
+
+	contractAdd := common.HexToAddress(ii.CcontractHex)
+	cTodo, err := todo.NewTodo(contractAdd, con)
+	if utility.FailOnError(err, "Creating contract bindings") == true {
+		fmt.Println("Could not access contract bindings")
+	}
+
+	cTodo.Mint(pt.bnd, ii.AddressRecipient, ii.Amount.ToBig())
+	return false
 }
 
 //
@@ -126,9 +132,22 @@ func RenounceOwnership(con *ethclient.Client, input *InputQuery) (*bool, error) 
 }
 
 //
-func Transfer(con *ethclient.Client, input *InputQuery) (*bool, error) {
+func Transfer(con *ethclient.Client, ii *InputQuery) bool {
 	//implement me
-	return nil, nil
+	pt, err := PreTransaction(con, ii)
+	if utility.FailOnError(err, "interact.PreTransaction") == true {
+		fmt.Println("Cound not prepare pretransactor - ", err)
+		return false
+	}
+
+	contractAdd := common.HexToAddress(ii.CcontractHex)
+	cTodo, err := todo.NewTodo(contractAdd, con)
+	if utility.FailOnError(err, "Creating contract bindings") == true {
+		fmt.Println("Could not access contract bindings")
+	}
+
+	cTodo.Transfer(pt.bnd, ii.AddressRecipient, ii.Amount.ToBig())
+	return false
 }
 
 //
@@ -182,102 +201,6 @@ func Symbol(con *ethclient.Client, input *InputQuery) (*string, error) {
 //TotalSupply - Returns total amount of tokens in existence
 func TotalSupply(con *ethclient.Client, input *InputQuery) (*uint256.Int, error) {
 	//implement me
-	pt, err := PreTransaction(con, input)
-	if utility.FailOnError(err, "PreTransaction") == true {
-		return nil, err
-	}
-	// pt.bnd
-	// tdo := todo.NewTodo(input.CcontractHex)
-	fmt.Println(pt)
 
 	return nil, nil
 }
-
-// func InteractAdd(con *ethclient.Client, username, password, CcontractHex string) bool {
-
-// 	preTrans, err := PreTransaction(con, username, password, CcontractHex)
-// 	if utility.FailOnError(err, "PreTransaction") == true {
-// 		return false
-// 	}
-
-// 	transaction, err := preTrans.td.Add(preTrans.bnd, "MAKE BURGER")
-// 	if utility.FailOnError(err, "it.Add") == true {
-// 		return false
-// 	}
-
-// 	fmt.Println("-------------------RESPONSE FROM TRANSACTION--------------------")
-// 	fmt.Printf("Transaction Hash: %v\n", transaction.Hash())
-// 	fmt.Printf("Transaction Hex: %v\n", transaction.Hash().Hex())
-// 	fmt.Println("-------------------END RESPONSE FROM TRANSACTION----------------")
-
-// 	return true
-// }
-
-// func InteractList(con *ethclient.Client, username, password, CcontractHex string) (*[]todo.TodoTask, error) {
-
-// 	preTrans, err := PreTransaction(con, username, password, CcontractHex)
-// 	if utility.FailOnError(err, "PreTransaction") == true {
-// 		return nil, err
-// 	}
-
-// 	transaction, err := preTrans.td.List(&bind.CallOpts{
-// 		From: preTrans.bnd.From,
-// 	})
-// 	if utility.FailOnError(err, "preTrans.td.List") == true {
-// 		return nil, err
-// 	}
-
-// 	fmt.Println("-------------------RESPONSE FROM TRANSACTION--------------------")
-// 	fmt.Printf("Transaction : %v\n", transaction)
-// 	// fmt.Printf("Transaction Hex: %v\n", transaction.Hash().Hex())
-// 	fmt.Println("-------------------END RESPONSE FROM TRANSACTION----------------")
-
-// 	return &transaction, nil
-// }
-
-// func InteractUpdate(con *ethclient.Client, username, password, CcontractHex, ItemName, updatedTask string) bool {
-
-// 	preTrans, err := PreTransaction(con, username, password, CcontractHex)
-// 	if utility.FailOnError(err, "PreTransaction") == true {
-// 		return false
-// 	}
-
-// 	var itemId *big.Int
-// 	iid, _ := InteractList(con, username, password, CcontractHex)
-// 	for i, v := range *iid {
-// 		if v.Content == ItemName {
-// 			itemId = big.NewInt(int64(i))
-// 		}
-// 	}
-// 	transaction, err := preTrans.td.Update(preTrans.bnd, itemId, updatedTask)
-// 	if utility.FailOnError(err, "ipreTrans.td.Update") == true {
-// 		return false
-// 	}
-
-// 	fmt.Println("-------------------RESPONSE FROM TRANSACTION--------------------")
-// 	fmt.Printf("Transaction Hash: %v\n", transaction.Hash())
-// 	fmt.Printf("Transaction Hex: %v\n", transaction.Hash().Hex())
-// 	fmt.Println("-------------------END RESPONSE FROM TRANSACTION----------------")
-
-// 	return true
-// }
-
-// func InteractRemove(con *ethclient.Client, username, password, CcontractHex string) bool {
-
-// 	// preTrans, err := PreTransaction(con, username, password, CcontractHex)
-// 	// if utility.FailOnError(err, "PreTransaction") == true {
-// 	// 	return false
-// 	// }
-
-// 	// transaction, err := preTrans.td.Add(preTrans.bnd, "MAKE BURGER")
-// 	// if utility.FailOnError(err, "it.Add") == true {
-// 	// 	return false
-// 	// }
-
-// 	// fmt.Println("-------------------RESPONSE FROM TRANSACTION--------------------")
-// 	// fmt.Printf("Transaction Hash: %v\n", transaction.Hash())
-// 	// fmt.Printf("Transaction Hex: %v\n", transaction.Hash().Hex())
-// 	// fmt.Println("-------------------END RESPONSE FROM TRANSACTION----------------")
-
-// 	return true
-// }

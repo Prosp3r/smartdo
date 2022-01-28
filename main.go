@@ -1,18 +1,21 @@
 package main
 
 import (
-	"context"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math/big"
 	"os"
 	"strconv"
 
 	// "github.com/Prosp3r/smartdo/interact"
 	"github.com/Prosp3r/smartdo/deploy"
+	"github.com/Prosp3r/smartdo/interact"
+	"github.com/holiman/uint256"
+
 	// "github.com/Prosp3r/smartdo/interact"
 	"github.com/Prosp3r/smartdo/utility"
 	"github.com/ethereum/go-ethereum/common"
-	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/ethclient"
 )
 
@@ -85,11 +88,6 @@ func main() {
 		1. Check current app balance
 		2. Query app
 		3. Send tokens to app
-		4. Add Task
-		5. Change Task
-		6. List Tasks
-		7. Delete Task
-		8. Update Task
 		9. Create wallet
 	*/
 
@@ -100,29 +98,41 @@ func main() {
 		return
 	}
 	command := arg[1]
-	username := arg[2]
-	password := arg[3]
 
-	// fmt.Printf("Command: %v\n Username: %v\n Password: %v\n", command, username, password)
-
-	//Process sample transaction
-	// ProcessSampleTransaction(eClient)
-	//end process sample transaction
-
-	//Deploy smart contract
+	//Deploy smart contract to active network
 	if command == "deploy" {
+
+		username := arg[2]
+		password := arg[3]
+
+		var Dep utility.DeployedContracts
 		//Deploy smart Contract to chosen testnet
+		deployname := arg[4]
 		dResult, err := deploy.Deploy(eClient, username, password)
 		if FailOnError(err, "Error creating a deployment") == true {
 			fmt.Printf("%v\n", err)
 			return
 		}
-		TransHex := dResult.TransactionHex
-		fmt.Println(TransHex)
+
+		Dep.ContractHex = dResult.AddressHex
+		Dep.TranxHex = dResult.TransactionHex
+		Dep.NetworkDeployed = ActiveNet
+
+		DepJ, err := json.MarshalIndent(Dep, "", " ")
+		//
+		fmt.Println(Dep.TranxHex)
+		fmt.Println(Dep.ContractHex)
+
+		err = ioutil.WriteFile("loadedcontracts/"+deployname, DepJ, 0644)
+
+		//write to file
 	}
 
 	//Create account
 	if command == "adduser" {
+		//Creates a new encrypted ethereum compatible wallet
+		username := arg[2]
+		password := arg[3]
 		uWallet, err := utility.CreateCryptoWallet(username, password)
 		if utility.FailOnError(err, "utility.CreateCryptoWallet") {
 			fmt.Println("Cound not create account - ", err)
@@ -131,8 +141,11 @@ func main() {
 		fmt.Printf("Your crypto wallet : %v \n Username: %v \n Password: %v \n", uWallet.Address, username, password)
 	}
 
-	//Create account
+	//Print address hex
 	if command == "mywallet" {
+		// $ ./smartdo mywallet username password
+		username := arg[2]
+		password := arg[3]
 		uCryptoKey, err := utility.ReadCryptoKey(username, password)
 		if utility.FailOnError(err, "utility.ReadCryptoKey") == true {
 			fmt.Println("Cound not find account - ", err)
@@ -142,7 +155,12 @@ func main() {
 		fmt.Printf("Your crypto wallet : %v \n", address)
 	}
 
+	//Print address balance
 	if command == "balance" {
+		// $ ./smartdo mywallet username password
+		username := arg[2]
+		password := arg[3]
+
 		uCryptoKey, err := utility.ReadCryptoKey(username, password)
 		if utility.FailOnError(err, "utility.ReadCryptoKey") == true {
 			fmt.Println("Cound not find account - ", err)
@@ -157,6 +175,10 @@ func main() {
 	}
 
 	if command == "sendwei" {
+		//Send wei to another address
+		// $ ./smartdo sendwei username password <recipient_address e.g 0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d> <sendAmount e.g. 200>
+		username := arg[2]
+		password := arg[3]
 		if len(arg) > 5 {
 			recipeient := arg[4]
 			sendAmount := arg[5]
@@ -168,11 +190,6 @@ func main() {
 
 			amount := new(big.Int).SetUint64(uint64(s))
 
-			// uCryptoKey, err := utility.ReadCryptoKey(username, password)
-			// if utility.FailOnError(err, "utility.ReadCryptoKey") == true {
-			// 	fmt.Println("Cound not find account - ", err)
-			// 	return
-			// }
 			receiver := common.HexToAddress(recipeient)
 
 			senderAddress, err := utility.GetUserAddress(username, password)
@@ -211,81 +228,76 @@ func main() {
 
 	}
 
-	if command == "exsendwei" {
-		ProcessAddTransaction(eClient, username, password)
-	}
+	if command == "contract-mint" {
+		// $ ./smartdo contract-mint username password <contractName e.g. logi> <recipient_address e.g 0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d> <amountOfTokens e.g. 200>
+		//username must be the one that deployed the contract
 
-	// if command == "cbalance" {
-	// 	balance, err := utility.GetWalletBalance(eClient, address1.Hex())
-	// 	if utility.FailOnError(err, "") == true {
-	// 		fmt.Println("Could no get wallet balance")
-	// 		return
-	// 	}
-	// 	ethbalance := utility.WeiToEther(balance)
-	// 	fmt.Printf("Your crypto wallet : %v \nBalance(wei): %v\n Balanace(eth): %v\n", address1, balance, ethbalance)
-	// }
+		username := arg[2] //admin username
+		password := arg[3] //admin user password
 
-	//Interact with contract of Hex: 0x4241D10e086895Ca1E08903baB2778e49aa31d37
-	// TransHex := "0x4241D10e086895Ca1E08903baB2778e49aa31d37"
+		contractName := arg[4]     //which contract should be used for this interraction
+		recipientAddress := arg[5] //which address will receive the minted tokens
 
-	// _ = interact.InteractAdd(eClient, TestUserName1, TestPassword1, TransHex)
-	// _, err = interact.InteractList(eClient, TestUserName1, TestPassword1, TransHex)
+		var ii interact.InputQuery
 
-	// _ = interact.InteractUpdate(eClient, TestUserName1, TestPassword1, TransHex, "MAKE BURGER", "MAKE MORE BURGER")
+		//read contract information by name used to save it
+		contract, err := utility.ReadStoredContract(contractName)
+		if utility.FailOnError(err, "BindAndSendTransaction") == true {
+			fmt.Printf("Cound not find smart contract - names: %v\n encountered error %v\n", contractName, err)
+			return
+		}
 
-	//CheckBalance
-	// address, err := utility.GetUserAddress(TestUserName1, TestPassword2)
-	// balance := utility.CheckCryptoBalance(*address, eClient)
-	// fmt.Printf("Blanace wei: %v\n Balance ETH : %v\n", balance, utility.WeiToEther(balance))
+		//If required
+		sendAmount := arg[6] //amount of tokens to mint to recipient address
+		s, err := strconv.Atoi(sendAmount)
+		if utility.FailOnError(err, "strconv.Atoi") == true {
+			fmt.Println("Cound not read amount to send - ", err)
+			return
+		}
+		ii.Amount = *uint256.NewInt(uint64(s))
+		ii.CcontractHex = contract.ContractHex
+		ii.Username = username
+		ii.Password = password
+		ii.AddressRecipient = common.HexToAddress(recipientAddress)
 
-}
-
-func ProcessAddTransaction(eClient *ethclient.Client, fromAccountUsername, fromAccountPassword string) {
-
-	senderKeys, err := utility.ReadCryptoKey(TestUserName1, TestPassword1)
-	_ = FailOnError(err, "ReadCryptoWallet")
-
-	senderWallet, err := utility.GetUserAddress(TestUserName1, TestPassword1)
-	_ = FailOnError(err, "GetUserAddress")
-
-	receiverWallet, err := utility.GetUserAddress(TestUserName2, TestPassword2)
-	_ = FailOnError(err, "GetUserAddress")
-
-	//check
-	hashAddToAdd := common.HexToAddress("0x36FcEdA6E0e4044Bb4Dd65D72cC0A9206B83D183")
-
-	//send ether
-	amount := big.NewInt(5000000000) //wei
-	var AppData []byte = nil
-	transaction, err := utility.CreateNewTransaction(*senderWallet, hashAddToAdd, amount, eClient, AppData)
-	// transaction, err := utility.CreateNewTransaction(*senderWallet, *receiverWallet, amount, eClient, AppData)
-	if FailOnError(err, "CreateNewTransaction") == true {
+		interact.Mint(eClient, &ii)
 		return
 	}
 
-	//check
-	// hashAddToAdd := common.HexToAddress("0x36FcEdA6E0e4044Bb4Dd65D72cC0A9206B83D183")
-	fmt.Printf("To Address: %v \n Converted ToAddress: %v \n %v \n\n", transaction.To(), hashAddToAdd, &*receiverWallet)
 
-	chainID, err := eClient.NetworkID(context.Background())
-	if FailOnError(err, "eClient.NetworkID") == true {
+	if command == "contract-transfer" {
+		// $ ./smartdo contract-transfer username password <contractName e.g. logi> <recipient_address e.g 0x8be9a9FCA9861b39487C8513C0EfD2D4C697011d> <amountOfTokens e.g. 200>
+		//username must be the one that deployed the contract
+
+		username := arg[2] //admin username
+		password := arg[3] //admin user password
+
+		contractName := arg[4]     //which contract should be used for this interraction
+		recipientAddress := arg[5] //which address will receive the minted tokens
+
+		var ii interact.InputQuery
+
+		//read contract information by name used to save it
+		contract, err := utility.ReadStoredContract(contractName)
+		if utility.FailOnError(err, "BindAndSendTransaction") == true {
+			fmt.Printf("Cound not find smart contract - names: %v\n encountered error %v\n", contractName, err)
+			return
+		}
+
+		//If required
+		sendAmount := arg[6] //amount of tokens to mint to recipient address
+		s, err := strconv.Atoi(sendAmount)
+		if utility.FailOnError(err, "strconv.Atoi") == true {
+			fmt.Println("Cound not read amount to send - ", err)
+			return
+		}
+		ii.Amount = *uint256.NewInt(uint64(s))
+		ii.CcontractHex = contract.ContractHex
+		ii.Username = username
+		ii.Password = password
+		ii.AddressRecipient = common.HexToAddress(recipientAddress)
+
+		interact.Mint(eClient, &ii)
 		return
 	}
-	//sign transaction with private key
-	signedTranx, err := types.SignTx(transaction, types.NewEIP155Signer(chainID), senderKeys.PrivateKey)
-	if FailOnError(err, "SignTx") == true {
-		return
-	}
-
-	sendTx, err := utility.SendTransaction(eClient, signedTranx)
-	if FailOnError(err, "CreateNewTransaction") == true {
-		return
-	}
-
-	// sendTxH := common.HexToAddress(*sendTx)
-	fmt.Printf("Transaction hash : %v\n\n", *sendTx)
-
-	//TODO
-	//Display more information to user eg. Howmuch receiver gets, cost, etc.
-	//
 }
