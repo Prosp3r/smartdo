@@ -18,7 +18,9 @@ NOTE: Given more time, this could be made more dynamic.
 
 
 ### Usage
+    $ git clone git@github.com:Prosp3r/smartdo.git 
     $ ./smartdo <command> <options>
+    
 
 list of functionalities and the commands to test them out
 
