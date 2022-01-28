@@ -78,7 +78,8 @@ func main() {
 
 	//Deploy smart contract to active network
 	if command == "deploy" {
-
+		//Deploys the pre written ERC20 Toke to the active Testnet or mainnet
+		// $ ./smartdo deploy username password <contractname>
 		username := arg[2]
 		password := arg[3]
 
@@ -135,7 +136,7 @@ func main() {
 
 	//Print address balance
 	if command == "balance" {
-		// $ ./smartdo mywallet username password
+		// $ ./smartdo balance username password
 		username := arg[2]
 		password := arg[3]
 
