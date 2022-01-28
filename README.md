@@ -25,7 +25,7 @@ list of functionalities and the commands to test them out
 
 1. Create account - Create a new encrypted ethereum compatible wallet
     
-    $ ./smartdo adduser <username> <password>
+  `  $ ./smartdo adduser <username> <password> `
     
 
     An account is needed to carry out the different operations below. Encrypted accounts created are temporaily stored in the ./wallet folder.
