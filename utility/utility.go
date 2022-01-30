@@ -83,19 +83,8 @@ func CreateNewTransaction(fromAddress, toAddress common.Address, amount *big.Int
 		return nil, err
 	}
 
-	// //:::::::::check if sender balance is enough to make payment
-	// senderBalance := CheckCryptoBalance(fromAddress, client)
-
-	// total := gasPrice.Add(amount, gasPrice)
-	// // fmt.Printf("Total to send wei: %v\n", total)
-	// fmt.Printf("Current sender balance: %v\n Needed amount : %v\n", weiToEther(senderBalance), weiToEther(total))
-
-	// if total.CmpAbs(senderBalance) <= 0 {
-	// 	return nil, errors.New("Insufficient funds to initiate transaction")
-	// }
 	// //:::END::::::check if sender balance is enough to make payment
 	trx := types.NewTransaction(nonce, toAddress, amount, gassLimit, gasPrice, AppData)
-	// fmt.Printf("Transaction: %v\n To address %v\n From address %v\n", trx, toAddress, fromAddress)
 	return trx, nil
 }
 

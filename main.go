@@ -182,7 +182,7 @@ func main() {
 
 			senderKeys, err := utility.ReadCryptoKey(TestUserName1, TestPassword1)
 			if FailOnError(err, "ReadCryptoWallet") == true {
-				fmt.Printf("Could not fetch sender private key - pleae make sure the password is correct.", err)
+				fmt.Printf("Could not fetch sender private key - pleae make sure the password is correct. error: %v\n", err)
 				return
 			}
 

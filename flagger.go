@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-var flagSet = flag.NewFlagSet("trivaform", flag.ContinueOnError)
+var flagSet = flag.NewFlagSet("smartdo", flag.ContinueOnError)
 
 func init() { flagSet.Usage = usage }
 
@@ -17,7 +17,7 @@ var (
 )
 
 func version() {
-	fmt.Printf(` Trivaform Version: %s`, versionNum)
+	fmt.Printf(` Smartdo Version: %s`, versionNum)
 }
 
 //usage displays command line usage information
@@ -80,38 +80,5 @@ func flagger() bool {
 		os.Exit(1)
 	}
 
-	// //Determing alternative source file
-	// if len(sourceFile) > 3 {
-	// 	//fmt.Printf("Source provided : %v \n", sourceFile)
-	// 	if _, err := os.Stat(sourceFile); err == nil {
-	// 		//exists
-	// 		fmt.Printf("Source provided : %v \n", sourceFile)
-	// 		FileSrc = sourceFile
-	// 		fmt.Printf("Attempting to read from: %v \n", FileSrc)
-	// 	} else {
-	// 		fmt.Printf("The file %v does not appear to exist. \n Please note that full path not supported by TrivaForm for now \n... bye now \n", sourceFile)
-	// 		os.Exit(1)
-	// 	}
-
-	// } else {
-	// 	fmt.Printf("No custom source provided \n")
-	// 	FileSrc = defautlFileSrc
-	// 	fmt.Printf("Attempting to read from default file source: %v \n", FileSrc)
-	// }
-	// //display valid and invalid entry count stats after operations
-	// if *stats {
-	// 	readStats = true
-	// }
-
-	// if *ordern {
-	// 	OrderByName = true
-	// }
-
-	// if *orderr {
-	// 	OrderByRatings = true
-	// }
-	// //Implement outfile flag
-
-	//end outfile flag
 	return true
 }
