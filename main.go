@@ -20,9 +20,10 @@ import (
 )
 
 var (
-	EvMOSNet = "http://192.168.8.105:8545"
-	MainNet  = "https://mainnet.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
-	GanaChe  = ""
+	EvMOSNet  = "http://192.168.8.105:8545"
+	EvMOSNet2 = "https://evmos-evm-rpc.tk"
+	MainNet   = "https://mainnet.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
+	GanaChe   = ""
 
 	RinkeByTestNet = "https://rinkeby.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
 	KovanTestNet   = "https://kovan.infura.io/v3/8c5b190b405041f4afb69b99b46c4070"
@@ -34,7 +35,7 @@ var (
 	TestPassword2    = "akomeno123,"
 	TestUserName2    = "omovie"
 
-	ActiveNet = KovanTestNet //RopstenTestNet //RinkeByTestNet //KovanTestNet
+	ActiveNet = EvMOSNet2 //RopstenTestNet //RinkeByTestNet //KovanTestNet
 )
 
 func FailOnError(err error, note string) bool {
